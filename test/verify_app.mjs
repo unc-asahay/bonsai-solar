@@ -10,6 +10,9 @@
 import { chromium } from "playwright";
 
 const BASE = process.argv[2] ?? "http://127.0.0.1:8899";
+// The path to the page. Locally it sits under site/; the deployed
+// site serves it from the root.
+const PAGE = process.argv[3] ?? "/site/index.html";
 
 let passed = 0;
 let failed = 0;
@@ -116,7 +119,7 @@ page.on("console", (m) => {
 });
 page.on("pageerror", (e) => consoleErrors.push(String(e)));
 
-await page.goto(`${BASE}/site/index.html`, { waitUntil: "networkidle" });
+await page.goto(`${BASE}${PAGE}`, { waitUntil: "networkidle" });
 await page.waitForSelector(".headline-value", { timeout: 20000 });
 
 check("the page mounted", (await page.locator(".headline-value").count()) === 1);
@@ -237,7 +240,7 @@ check("no console errors", consoleErrors.length === 0, consoleErrors.join(" | ")
 // -- and it survives being looked at on a phone -------------------------------
 
 const phone = await browser.newPage({ viewport: { width: 390, height: 844 } });
-await phone.goto(`${BASE}/site/index.html`, { waitUntil: "networkidle" });
+await phone.goto(`${BASE}${PAGE}`, { waitUntil: "networkidle" });
 await phone.waitForSelector(".headline-value", { timeout: 20000 });
 const overflow = await phone.evaluate(
   () => document.documentElement.scrollWidth - document.documentElement.clientWidth

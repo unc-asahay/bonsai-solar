@@ -2,6 +2,8 @@
 
 A solar calculator, in OCaml and Bonsai.
 
+**Live: <https://unc-asahay.github.io/bonsai-solar/>**
+
 It answers the question a person with a roof actually asks: *if I put
 panels here, how much do I get, and when do I get my money back?*
 
@@ -97,4 +99,11 @@ Then:
 opam exec --switch=bonsai-ui -- dune build
 python3 -m http.server 8899
 # and open http://127.0.0.1:8899/site/index.html
+```
+
+The same browser gate can be pointed at the deployed site, which is how
+the published page is checked rather than assumed:
+
+```sh
+node test/verify_app.mjs https://unc-asahay.github.io/bonsai-solar /
 ```

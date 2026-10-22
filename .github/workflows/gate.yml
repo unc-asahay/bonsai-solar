@@ -1,0 +1,45 @@
+# The gate, on every push.
+#
+# The interesting part of this repository is the model, and the model is
+# checked three ways: by its own invariants, against a second
+# implementation in another language, and in a real browser against a
+# third. This workflow runs all three.
+name: gate
+
+on:
+  push:
+    branches: [master]
+  pull_request:
+
+jobs:
+  gate:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up OCaml
+        uses: ocaml/setup-ocaml@v3
+        with:
+          ocaml-compiler: 5.2.1
+
+      # The Jane Street preview packages (bonsai, bonsai_web) are not on
+      # opam.ocaml.org, so the opam repository has to be added first.
+      - name: Add the Jane Street opam repository
+        run: |
+          opam repository add jane-street https://ocaml.janestreet.com --set-default
+          opam switch create bonsai-ui 5.2.1 --packages=ocaml-base-compiler.5.2.1
+          opam install -y --switch=bonsai-ui \
+            dune core bonsai bonsai_web bonsai_web_components ppx_html js_of_ocaml
+
+      - name: Set up Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+
+      - name: Install the browser and its driver
+        run: |
+          npm install
+          npx playwright install --with-deps chromium
+
+      - name: The gate
+        run: ./tools/gate.sh

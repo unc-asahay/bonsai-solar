@@ -1,0 +1,5 @@
+; The model has no DOM dependency, so this links natively and runs natively.
+(executable
+ (name solar_test)
+ (modules solar_test)
+ (libraries solar core))

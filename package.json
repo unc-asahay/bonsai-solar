@@ -1,0 +1,13 @@
+{
+  "name": "bonsai-solar",
+  "version": "0.1.0",
+  "private": true,
+  "description": "A solar calculator in OCaml and Bonsai.",
+  "scripts": {
+    "gate": "./tools/gate.sh",
+    "verify": "node test/verify_app.mjs"
+  },
+  "devDependencies": {
+    "playwright": "^1.47.0"
+  }
+}

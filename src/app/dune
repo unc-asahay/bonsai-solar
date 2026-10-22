@@ -1,0 +1,6 @@
+(executable
+ (name app)
+ (libraries solar bonsai bonsai_web virtual_dom js_of_ocaml core)
+ (modes js)
+ (preprocess
+  (pps bonsai.ppx_bonsai js_of_ocaml-ppx)))

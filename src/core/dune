@@ -1,0 +1,7 @@
+; The model, deliberately free of any DOM dependency, so that it can be
+; linked natively and tested natively. The app depends on this; this
+; depends on nothing but Core.
+(library
+ (name solar)
+ (modules solar)
+ (libraries core))

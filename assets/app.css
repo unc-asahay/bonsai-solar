@@ -1,0 +1,322 @@
+/* The solar calculator's stylesheet.
+
+   One accent, a lot of space, and numbers big enough to read at a
+   glance. The charts are SVG, so they scale with the page. */
+
+:root {
+  --ink: #16181d;
+  --ink-soft: #5b6270;
+  --ink-faint: #8b93a3;
+  --paper: #fbfaf7;
+  --card: #ffffff;
+  --line: #e6e3dc;
+  --accent: #e8862a;
+  --accent-deep: #b85f10;
+  --accent-wash: #fdf1e2;
+  --sun: #f5b942;
+  --sky: #6aa9e0;
+  --good: #2e8b62;
+  --radius: 14px;
+  --shadow: 0 1px 2px rgba(22, 24, 29, 0.04), 0 8px 24px rgba(22, 24, 29, 0.06);
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --ink: #eceef2;
+    --ink-soft: #a6adbb;
+    --ink-faint: #79808f;
+    --paper: #14161a;
+    --card: #1c1f25;
+    --line: #2b3038;
+    --accent: #f0a04a;
+    --accent-deep: #f5bd7d;
+    --accent-wash: #2a2118;
+    --good: #5fc79a;
+    --shadow: 0 1px 2px rgba(0, 0, 0, 0.3), 0 8px 24px rgba(0, 0, 0, 0.25);
+  }
+}
+
+* { box-sizing: border-box; }
+
+html, body {
+  margin: 0;
+  padding: 0;
+  background: var(--paper);
+  color: var(--ink);
+  font: 16px/1.55 -apple-system, BlinkMacSystemFont, "Segoe UI", Inter, Roboto, "Helvetica Neue", Arial, sans-serif;
+  -webkit-font-smoothing: antialiased;
+}
+
+.page {
+  max-width: 1180px;
+  margin: 0 auto;
+  padding: 40px 24px 72px;
+}
+
+.masthead { margin-bottom: 28px; }
+
+.masthead-title {
+  font-size: 34px;
+  font-weight: 680;
+  letter-spacing: -0.02em;
+  margin: 0 0 6px;
+}
+
+.masthead-sub {
+  color: var(--ink-soft);
+  margin: 0;
+  max-width: 62ch;
+}
+
+.layout {
+  display: grid;
+  grid-template-columns: minmax(300px, 380px) 1fr;
+  gap: 24px;
+  align-items: start;
+}
+
+@media (max-width: 860px) {
+  .layout { grid-template-columns: 1fr; }
+}
+
+.panel {
+  background: var(--card);
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  box-shadow: var(--shadow);
+  padding: 22px;
+}
+
+.panel-title {
+  font-size: 12px;
+  font-weight: 640;
+  letter-spacing: 0.09em;
+  text-transform: uppercase;
+  color: var(--ink-faint);
+  margin: 4px 0 14px;
+}
+
+.panel-title + .field { margin-top: 0; }
+
+.controls .panel-title:not(:first-child) {
+  margin-top: 26px;
+  padding-top: 20px;
+  border-top: 1px solid var(--line);
+}
+
+.field { margin-bottom: 14px; display: block; }
+
+.field > label,
+.field-head > label {
+  display: block;
+  font-size: 13px;
+  font-weight: 560;
+  color: var(--ink-soft);
+  margin-bottom: 6px;
+}
+
+.field-head {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  gap: 10px;
+}
+
+.field-head > label { margin-bottom: 6px; }
+
+.field-value {
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--accent-deep);
+  font-variant-numeric: tabular-nums;
+}
+
+.input {
+  width: 100%;
+  font: inherit;
+  font-size: 15px;
+  color: var(--ink);
+  background: var(--paper);
+  border: 1px solid var(--line);
+  border-radius: 9px;
+  padding: 9px 11px;
+  transition: border-color 0.12s ease, box-shadow 0.12s ease;
+}
+
+.input:focus-visible {
+  outline: none;
+  border-color: var(--accent);
+  box-shadow: 0 0 0 3px var(--accent-wash);
+}
+
+select.input { cursor: pointer; }
+
+input[type="range"].input {
+  padding: 0;
+  height: 22px;
+  background: transparent;
+  border: 0;
+  accent-color: var(--accent);
+  cursor: pointer;
+}
+
+.headline {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 10px;
+  padding-bottom: 20px;
+  border-bottom: 1px solid var(--line);
+}
+
+.headline-value {
+  font-size: 52px;
+  font-weight: 700;
+  letter-spacing: -0.03em;
+  line-height: 1;
+  font-variant-numeric: tabular-nums;
+  color: var(--accent-deep);
+}
+
+.headline-unit {
+  font-size: 18px;
+  font-weight: 560;
+  color: var(--ink-soft);
+}
+
+.headline-note {
+  flex-basis: 100%;
+  color: var(--ink-faint);
+  font-size: 14px;
+  margin-top: 4px;
+}
+
+.readouts {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+  gap: 12px;
+  margin: 20px 0 26px;
+}
+
+.readout {
+  border: 1px solid var(--line);
+  border-radius: 11px;
+  padding: 14px 15px;
+  background: var(--paper);
+}
+
+.readout-value {
+  font-size: 25px;
+  font-weight: 680;
+  letter-spacing: -0.02em;
+  font-variant-numeric: tabular-nums;
+  line-height: 1.15;
+}
+
+.readout-unit {
+  font-size: 13px;
+  color: var(--accent-deep);
+  font-weight: 580;
+  margin-top: 1px;
+}
+
+.readout-label {
+  font-size: 12.5px;
+  color: var(--ink-faint);
+  margin-top: 7px;
+}
+
+.chart-block { margin-bottom: 24px; }
+
+.chart-title {
+  font-size: 13px;
+  font-weight: 620;
+  color: var(--ink-soft);
+  margin-bottom: 8px;
+}
+
+.chart-frame {
+  border: 1px solid var(--line);
+  border-radius: 11px;
+  background: var(--paper);
+  padding: 14px 16px;
+}
+
+.chart { display: block; width: 100%; height: auto; }
+
+.chart .bar { fill: var(--accent); }
+.chart .axis-label { fill: var(--ink-faint); font-size: 11px; }
+
+.chart.sun-path .sun-arc {
+  fill: none;
+  stroke: var(--sun);
+  stroke-width: 2.5;
+  stroke-linecap: round;
+}
+
+.chart.sun-path .normal {
+  stroke: var(--sky);
+  stroke-width: 1.5;
+  stroke-dasharray: 4 3;
+  fill: none;
+}
+
+.chart.sun-path .sun-dot { fill: var(--sun); }
+
+.chart-note {
+  font-size: 12.5px;
+  color: var(--ink-faint);
+  margin-top: 7px;
+}
+
+.facts {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+  gap: 12px;
+  border-top: 1px solid var(--line);
+  padding-top: 18px;
+}
+
+.fact-label {
+  font-size: 12px;
+  color: var(--ink-faint);
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  font-weight: 600;
+}
+
+.fact-value {
+  font-size: 16px;
+  font-weight: 600;
+  margin-top: 3px;
+  font-variant-numeric: tabular-nums;
+}
+
+.chart .compass {
+  fill: var(--ink-faint);
+  font-size: 10px;
+  letter-spacing: 0.08em;
+}
+
+.chart .chart-caption {
+  fill: var(--ink-faint);
+  font-size: 10.5px;
+}
+
+.chart .chart-caption.peak {
+  fill: var(--ink-soft);
+  font-size: 11px;
+  font-weight: 600;
+}
+
+.chart.sun-path .horizon {
+  stroke: var(--line);
+  stroke-width: 1.5;
+}
+
+.chart.sun-path .normal {
+  stroke: var(--sky);
+  stroke-width: 2;
+  stroke-dasharray: 5 3;
+  fill: none;
+}

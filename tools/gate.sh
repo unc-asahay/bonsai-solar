@@ -13,6 +13,10 @@ set -uo pipefail
 cd "$(dirname "$0")/.."
 
 PORT="${SOLAR_PORT:-8899}"
+# The switch to build in. CI has one switch and no name for it, so an
+# empty value means "the default".
+SWITCH="${SOLAR_OPAM_SWITCH-bonsai-ui}"
+if [ -n "$SWITCH" ]; then OPAM=(opam exec --switch="$SWITCH" --); else OPAM=(opam exec --); fi
 BASE="http://127.0.0.1:${PORT}"
 FAILED=0
 
@@ -26,7 +30,7 @@ else BOLD=""; GREEN=""; RED=""; RESET=""; fi
 # ---------------------------------------------------------------- the build
 
 step "the build"
-if timeout 600 opam exec --switch=bonsai-ui -- dune build 2>&1 | tail -20; then
+if timeout 600 "${OPAM[@]}" dune build 2>&1 | tail -20; then
   ok "it builds"
 else
   bad "it does not build"

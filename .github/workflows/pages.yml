@@ -33,21 +33,36 @@ jobs:
         with:
           python-version: "3.12"
 
-      - name: Set up OCaml
+      - name: Set up OCaml 5.2.1
         uses: ocaml/setup-ocaml@v3
         with:
-          ocaml-compiler: 5.2.1
+          ocaml-compiler: "5.2.1"
+          opam-pin: false
 
-      - name: Add the Jane Street opam repository
+      - name: Cache the opam switch and repositories
+        uses: actions/cache@v4
+        with:
+          path: ~/.opam
+          key: opam-${{ runner.os }}-ocaml-5.2.1-dune-3.23.1
+          restore-keys: opam-${{ runner.os }}-ocaml-5.2.1-
+
+      # The Jane Street preview packages are not in opam.ocaml.org, and
+      # the repository has to be added as the git repository: the old
+      # tarball URL now 404s.
+      - name: Add Jane Street's opam repository
         run: |
-          opam repository add jane-street https://ocaml.janestreet.com --set-default
-          opam switch create bonsai-ui 5.2.1 --packages=ocaml-base-compiler.5.2.1
-          opam install -y --switch=bonsai-ui \
-            dune core bonsai bonsai_web bonsai_web_components ppx_html js_of_ocaml
+          opam repo add janestreet https://github.com/janestreet/opam-repository.git --rank=1 --all-switches
+          opam update janestreet
+          opam show bonsai_web --field=version
+
+      - name: Install dependencies
+        run: |
+          opam install -y dune.3.23.1
+          opam install -y bonsai_web bonsai_web_components bonsai_web_test ppx_html js_of_ocaml
 
       - name: Build the bundle
         run: |
-          opam exec --switch=bonsai-ui -- dune build src/app/app.bc.js
+          opam exec -- dune build src/app/app.bc.js
 
       - name: Assemble the site
         run: |

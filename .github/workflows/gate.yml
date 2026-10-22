@@ -17,29 +17,50 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      - name: Set up OCaml
-        uses: ocaml/setup-ocaml@v3
-        with:
-          ocaml-compiler: 5.2.1
-
-      # The Jane Street preview packages (bonsai, bonsai_web) are not on
-      # opam.ocaml.org, so the opam repository has to be added first.
-      - name: Add the Jane Street opam repository
-        run: |
-          opam repository add jane-street https://ocaml.janestreet.com --set-default
-          opam switch create bonsai-ui 5.2.1 --packages=ocaml-base-compiler.5.2.1
-          opam install -y --switch=bonsai-ui \
-            dune core bonsai bonsai_web bonsai_web_components ppx_html js_of_ocaml
-
       - name: Set up Node
         uses: actions/setup-node@v4
         with:
-          node-version: 20
+          node-version: "24"
 
       - name: Install the browser and its driver
         run: |
           npm install
           npx playwright install --with-deps chromium
 
+      - name: Set up OCaml 5.2.1
+        uses: ocaml/setup-ocaml@v3
+        with:
+          ocaml-compiler: "5.2.1"
+          opam-pin: false
+
+      # The switch is ~200 preview packages and takes a long time to
+      # build, so it is cached.
+      - name: Cache the opam switch and repositories
+        uses: actions/cache@v4
+        with:
+          path: ~/.opam
+          key: opam-${{ runner.os }}-ocaml-5.2.1-dune-3.23.1
+          restore-keys: opam-${{ runner.os }}-ocaml-5.2.1-
+
+      # The Jane Street preview packages (bonsai, bonsai_web) are not in
+      # opam.ocaml.org, so the opam repository has to be added
+      # explicitly — as the git repository, not the old tarball URL,
+      # which now 404s.
+      - name: Add Jane Street's opam repository
+        run: |
+          opam repo add janestreet https://github.com/janestreet/opam-repository.git --rank=1 --all-switches
+          opam update janestreet
+          # Fail here, at the repository, rather than later at
+          # "No package named bonsai_web found".
+          opam show bonsai_web --field=version
+
+      - name: Install dependencies
+        run: |
+          opam install -y dune.3.23.1
+          opam install -y bonsai_web bonsai_web_components bonsai_web_test ppx_html js_of_ocaml
+
       - name: The gate
         run: ./tools/gate.sh
+        env:
+          # CI has one switch and no name for it.
+          SOLAR_OPAM_SWITCH: ""

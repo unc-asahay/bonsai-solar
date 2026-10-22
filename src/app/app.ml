@@ -616,6 +616,11 @@ let page (graph : Bonsai.graph) =
                   ~label:"Total saved"
               ]
           ; div
+              ~attrs:[ Vdom.Attr.class_ "chart-note" ]
+              [ text
+                  "Over 25 years: electricity rising 3% a year, panels losing 0.5% a year.                    Payback is the simple kind — the cost divided by the first year's saving."
+              ]
+          ; div
               ~attrs:[ Vdom.Attr.class_ "chart-block" ]
               [ div ~attrs:[ Vdom.Attr.class_ "chart-title" ] [ text "Production through the year" ]
               ; div

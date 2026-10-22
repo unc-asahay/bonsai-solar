@@ -1,0 +1,73 @@
+# Publish the app to GitHub Pages.
+#
+# The same build the gate makes: opam switch, dune build, and then a
+# directory holding the page, the stylesheet and the compiled bundle.
+name: pages
+
+on:
+  push:
+    branches: [master]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+# One deployment at a time, and never cancel one halfway: a half-deployed
+# site is worse than an out-of-date one.
+concurrency:
+  group: pages
+  cancel-in-progress: false
+
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Set up OCaml
+        uses: ocaml/setup-ocaml@v3
+        with:
+          ocaml-compiler: 5.2.1
+
+      - name: Add the Jane Street opam repository
+        run: |
+          opam repository add jane-street https://ocaml.janestreet.com --set-default
+          opam switch create bonsai-ui 5.2.1 --packages=ocaml-base-compiler.5.2.1
+          opam install -y --switch=bonsai-ui \
+            dune core bonsai bonsai_web bonsai_web_components ppx_html js_of_ocaml
+
+      - name: Build the bundle
+        run: |
+          opam exec --switch=bonsai-ui -- dune build src/app/app.bc.js
+
+      - name: Assemble the site
+        run: |
+          mkdir -p _public
+          cp site/index.html _public/index.html
+          cp assets/app.css _public/app.css
+          cp _build/default/src/app/app.bc.js _public/app.bc.js
+          # The page is served from the root of the site, so its
+          # references have to be to the root too.
+          sed -i 's|\.\./assets/app\.css|./app.css|; s|\.\./_build/default/src/app/app\.bc\.js|./app.bc.js|' _public/index.html
+          # The bundle must not reference anything outside itself.
+          if grep -rn 'src="/\|href="/' _public/index.html; then
+            echo "the published page references a root-absolute path" >&2
+            exit 1
+          fi
+          ls -la _public
+
+      - uses: actions/configure-pages@v5
+      - uses: actions/upload-pages-artifact@v3
+        with:
+          path: _public
+      - id: deployment
+        uses: actions/deploy-pages@v4

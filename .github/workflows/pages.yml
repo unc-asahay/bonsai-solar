@@ -86,3 +86,20 @@ jobs:
           path: _public
       - id: deployment
         uses: actions/deploy-pages@v4
+
+      # A deployment that nobody looked at is a deployment that might be
+      # broken. The same browser gate the local run uses is pointed at
+      # the site that was just published.
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+
+      - name: Install the browser and its driver
+        run: |
+          npm install
+          npx playwright install --with-deps chromium
+
+      - name: The gate, against the deployed site
+        # The deployed site serves the page at its root; the local
+        # server serves the repository, so the page is under /site.
+        run: node test/verify_app.mjs "${{ steps.deployment.outputs.page_url }}" /index.html
